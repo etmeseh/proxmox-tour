@@ -3,6 +3,7 @@ import { t } from './i18n.js';
 import { find } from './finder.js';
 import { runTour } from './tour-runner.js';
 import { interpolate } from './assert.js';
+import { TIP } from './permissions.js';
 
 const CSS = `
 :host { all: initial; }
@@ -36,11 +37,13 @@ code { background: #111820; padding: 1px 4px; border-radius: 3px; font: 12px ui-
 .cmd.destructive pre { border-left: 3px solid #e03131; }
 .warn { color: #ff8787; font-size: 12px; margin-top: 3px; }
 .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+.perm { background: #3a2323; border-left: 3px solid #e03131; padding: 6px 8px; margin: 6px 0; font-size: 12px; }
+.perm ul { margin: 4px 0 4px 16px; padding: 0; } .perm li { margin: 2px 0; }
 .res.ok { color: #69db7c; } .res.fail { color: #ffa94d; } .res.bad { color: #ff8787; }
 .bar { height: 4px; background: #3e4c59; border-radius: 2px; margin: 4px 0 8px; } .bar i { display: block; height: 100%; background: #2f9e44; border-radius: 2px; }
 `;
 
-export function createLessonPanel({ engine, getLang, getContextVmid, isAlive = () => true, onDead = () => {} }) {
+export function createLessonPanel({ engine, getLang, getContextVmid, isAlive = () => true, onDead = () => {}, describe = () => null }) {
   const host = document.createElement('div');
   host.id = 'pvt-panel';
   const root = host.attachShadow({ mode: 'open' });
@@ -134,6 +137,33 @@ export function createLessonPanel({ engine, getLang, getContextVmid, isAlive = (
       c.destructive ? h('div', { class: 'warn' }, t(L, 'lessons.destructive')) : null);
   }
 
+  function permItem(d) {
+    const L = lang();
+    const info = describe(d.path);
+    const endpoint = info?.endpoint || d.path;
+    if (d.status === 401) return t(L, 'perm.item.expired', { endpoint });
+    if (!info || !info.privs.length) return t(L, 'perm.item.unknown', { endpoint });
+    return t(L, info.any ? 'perm.item.any' : 'perm.item.all', { endpoint, privs: info.privs.join(', '), on: info.on });
+  }
+
+  // Sammelblock oben: alle bisher verweigerten Endpunkte mit dem nötigen Recht.
+  function permBlock() {
+    if (!session.denied.length) return null;
+    const L = lang();
+    return h('div', { class: 'perm', role: 'alert' },
+      h('b', {}, t(L, 'perm.title')), h('div', {}, t(L, 'perm.intro')),
+      h('ul', {}, session.denied.map((d) => h('li', {}, permItem(d)))),
+      session.denied.some((d) => d.status === 403) ? h('div', {}, t(L, 'perm.tip', { role: TIP.role, tipPath: TIP.path })) : null);
+  }
+
+  // Hinweis, wenn ein Endpunkt ohne bestimmtes Recht nur eingeschränkt antwortet (kein 403, aber evtl. leer).
+  function limitedHint(r) {
+    if (r?.state !== 'fail' || !r.path) return null;
+    const info = describe(r.path);
+    if (!info?.limited) return null;
+    return h('div', { class: 'hint' }, t(lang(), 'perm.limited', { endpoint: info.endpoint, privs: info.limited.privs.join(', '), on: info.limited.on }));
+  }
+
   function resultView(stepId) {
     const L = lang();
     const r = results[stepId];
@@ -162,6 +192,8 @@ export function createLessonPanel({ engine, getLang, getContextVmid, isAlive = (
     if (!step.check && step.type !== 'read') actions.append(h('button', { class: 'primary', onclick: async () => { await engine.markDone(session, step.id, !done); render(); } }, done ? t(L, 'lessons.undo') : t(L, 'lessons.markDone')));
     if (step.type === 'read') actions.append(h('button', { class: 'primary', onclick: async () => { await engine.markDone(session, step.id, !done); render(); } }, done ? t(L, 'lessons.undo') : t(L, 'lessons.markDone')));
     content.append(actions);
+    const lim = limitedHint(results[step.id]);
+    if (lim) content.append(lim);
     if (hlMissing === step.id) content.append(h('div', { class: 'hint' }, t(L, 'lessons.hlMissing')));
     el.append(content);
     return el;
@@ -185,7 +217,7 @@ export function createLessonPanel({ engine, getLang, getContextVmid, isAlive = (
     const title = view === 'lesson' ? t(L, `lesson.${session.lesson.id}.title`) : t(L, 'lessons.title');
     const content = view === 'list' ? listView() : [
       h('button', { onclick: () => { stopPoll(); view = 'list'; render(); } }, '← ' + t(L, 'lessons.back')),
-      bar(session.lesson.id), varsView(),
+      bar(session.lesson.id), varsView(), permBlock(),
       session.lesson.steps.map(stepView),
       h('div', { class: 'actions' }, h('button', { onclick: async () => { await engine.reset(session.lesson.id); results = {}; render(); } }, t(L, 'lessons.reset')))];
     root.replaceChildren(

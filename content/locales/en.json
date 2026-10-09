@@ -77,5 +77,13 @@
   "arch.warn.title": "Warning: wrong architecture",
   "arch.warn.body": "The template {template} is built for {templateArch}, your host uses {hostArch}. The container would fail with “Exec format error”. Pick a template for {hostArch}.",
   "ext.invalidated": "The extension was updated – please reload the page.",
-  "ext.reload": "Reload page"
+  "ext.reload": "Reload page",
+  "perm.title": "Missing permissions",
+  "perm.intro": "Your user is not allowed to run these requests, so the related checks do not work:",
+  "perm.item.all": "{endpoint} needs {privs} on {on}",
+  "perm.item.any": "{endpoint} needs one of {privs} on {on}",
+  "perm.item.unknown": "{endpoint}: access denied",
+  "perm.item.expired": "{endpoint}: not logged in. Session expired? Reload the page and log in again.",
+  "perm.tip": "Tip: grant the role {role} on {tipPath} (Datacenter → Permissions → Add).",
+  "perm.limited": "Without {privs} on {on}, {endpoint} only returns your own or visible entries. The check can therefore fail even though the action ran."
 }

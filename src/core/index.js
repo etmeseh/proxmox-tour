@@ -10,6 +10,8 @@ import { showUpdateNotice } from './notice.js';
 import { tours } from '../../content/tours/index.js';
 import { lessons } from '../../content/lessons/index.js';
 import { createApi } from './api.js';
+import { createPermissions } from './permissions.js';
+import permissionsTable from '../../content/permissions.json';
 import { createEngine } from './lessons.js';
 import { createLessonPanel } from './lesson-panel.js';
 import { createArchCheck } from './arch-check.js';
@@ -66,6 +68,7 @@ export async function init(adapter) {
     getContextVmid: () => { const c = getContext(); return c.nodeType === 'lxc' ? c.nodeId : null; },
     isAlive,
     onDead: die,
+    describe: createPermissions(permissionsTable).describe,
   });
   const archCheck = createArchCheck({ api, getLang: () => launcher.getLang() });
 

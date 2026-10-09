@@ -71,3 +71,45 @@ test('Fortschritt überlebt neuen Engine-Start; reset löscht', async () => {
   await e2.reset('snap');
   assert.ok(!e2.isDone('snap', 'a'));
 });
+
+test('403 beim Öffnen und im Check wird mit Pfad in denied gesammelt', async () => {
+  const ok = fakeApi(base);
+  const api = { get: async (p) => (p === '/nodes/pve/status' || p.includes('/snapshot') ? { ok: false, status: 403, data: null } : ok.get(p)) };
+  const e = createEngine({ api, storage: mem(), lessons: [lesson] });
+  const s = await e.open('snap');
+  assert.deepEqual(s.denied, [{ path: '/nodes/pve/status', status: 403 }]);
+  const r = await e.check(s, 'b');
+  assert.deepEqual([r.state, r.path, r.status], ['noaccess', '/nodes/pve/lxc/105/snapshot', 403]);
+  assert.deepEqual(s.denied.map((d) => d.path), ['/nodes/pve/status', '/nodes/pve/lxc/105/snapshot']);
+  await e.check(s, 'b'); // zweiter Check: keine Dopplung
+  assert.equal(s.denied.length, 2);
+});
+
+test('401 (nicht angemeldet) wird als solche markiert', async () => {
+  const ok = fakeApi(base);
+  const api = { get: async (p) => (p.includes('/snapshot') ? { ok: false, status: 401, data: null } : ok.get(p)) };
+  const e = createEngine({ api, storage: mem(), lessons: [lesson] });
+  const s = await e.open('snap');
+  const r = await e.check(s, 'b');
+  assert.equal(r.status, 401);
+  assert.equal(s.denied[0].status, 401);
+});
+
+test('fail-Ergebnis trägt den Pfad (für den Hinweis auf eingeschränkte Antworten)', async () => {
+  const api = fakeApi({ ...base, '/nodes/pve/tasks?vmid=105': [] });
+  const e = createEngine({ api, storage: mem(), lessons: [lesson] });
+  const s = await e.open('snap');
+  const r = await e.check(s, 'c');
+  assert.deepEqual([r.state, r.path], ['fail', '/nodes/pve/tasks?vmid=105']);
+  assert.deepEqual(s.denied, []);
+});
+
+test('verweigerte Zeit-Abfrage wird gemeldet, Schritt startet trotzdem', async () => {
+  const ok = fakeApi(base);
+  const api = { get: async (p) => (p.endsWith('/time') ? { ok: false, status: 403, data: null } : ok.get(p)) };
+  const e = createEngine({ api, storage: mem(), lessons: [lesson] });
+  const s = await e.open('snap');
+  await e.startStep(s, 'c');
+  assert.ok(s.started.c > 0);
+  assert.deepEqual(s.denied.map((d) => d.path), ['/nodes/pve/time']);
+});

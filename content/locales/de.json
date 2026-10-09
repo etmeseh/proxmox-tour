@@ -77,5 +77,13 @@
   "arch.warn.title": "Achtung: falsche Architektur",
   "arch.warn.body": "Das Template {template} ist für {templateArch} gebaut, dein Host nutzt {hostArch}. Der Container würde mit „Exec format error“ nicht starten. Wähle ein {hostArch}-Template.",
   "ext.invalidated": "Erweiterung wurde aktualisiert – bitte Seite neu laden.",
-  "ext.reload": "Seite neu laden"
+  "ext.reload": "Seite neu laden",
+  "perm.title": "Fehlende Rechte",
+  "perm.intro": "Mit deinem Benutzer sind diese Abfragen nicht erlaubt, die zugehörigen Prüfungen funktionieren nicht:",
+  "perm.item.all": "{endpoint} braucht {privs} auf {on}",
+  "perm.item.any": "{endpoint} braucht eines von {privs} auf {on}",
+  "perm.item.unknown": "{endpoint}: Zugriff verweigert",
+  "perm.item.expired": "{endpoint}: nicht angemeldet. Sitzung abgelaufen? Seite neu laden und neu anmelden.",
+  "perm.tip": "Tipp: Rolle {role} auf {tipPath} vergeben (Datacenter → Permissions → Add).",
+  "perm.limited": "Ohne {privs} auf {on} liefert {endpoint} nur eigene bzw. sichtbare Einträge. Die Prüfung kann deshalb fehlschlagen, obwohl die Aktion gelaufen ist."
 }

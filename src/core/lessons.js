@@ -26,8 +26,19 @@ export function createEngine({ api, storage, lessons }) {
     return { done, total: l.steps.length };
   }
 
-  async function serverTime(node) {
-    const r = await api.get(`/nodes/${node}/time`);
+  // 401/403 merken: das Panel zeigt, welcher Endpunkt welches Recht braucht.
+  function note(s, path, r) {
+    if (r.status !== 401 && r.status !== 403) return;
+    const key = path.split('?')[0];
+    const known = s.denied.find((d) => d.path === key);
+    if (!known) s.denied.push({ path: key, status: r.status });
+    else if (r.status === 401) known.status = 401;
+  }
+
+  async function serverTime(s) {
+    const path = `/nodes/${s.vars.node}/time`;
+    const r = await api.get(path);
+    note(s, path, r);
     return r.ok && r.data?.time ? r.data.time : Math.floor(Date.now() / 1000);
   }
 
@@ -35,10 +46,11 @@ export function createEngine({ api, storage, lessons }) {
   async function open(id, contextVmid) {
     await ready;
     const lesson = find(id);
-    const s = { lesson, vars: {}, containers: [], started: {} };
+    const s = { lesson, vars: {}, containers: [], started: {}, denied: [] };
 
     const [nodes, res] = await Promise.all([api.get('/nodes'), api.get('/cluster/resources?type=vm')]);
-    s.accessOk = nodes.ok;
+    note(s, '/nodes', nodes);
+    note(s, '/cluster/resources', res);
     s.containers = (res.data || []).filter((r) => r.type === 'lxc').sort((a, b) => a.vmid - b.vmid);
     const firstNode = nodes.data?.[0]?.node || s.containers[0]?.node || 'pve';
 
@@ -51,13 +63,16 @@ export function createEngine({ api, storage, lessons }) {
     s.vars.node = pick?.node || firstNode;
     s.vars.snap = savedVars.snap || 'vor_test';
 
-    const status = await api.get(`/nodes/${s.vars.node}/status`);
+    const statusPath = `/nodes/${s.vars.node}/status`;
+    const status = await api.get(statusPath);
+    note(s, statusPath, status);
     const machine = status.data?.['current-kernel']?.machine;
     s.vars.hostMachine = machine || '?';
     s.vars.hostArch = hostArch(machine) || '?';
     s.vars.foreignArch = foreignPattern(hostArch(machine));
 
     const nextid = await api.get('/cluster/nextid');
+    note(s, '/cluster/nextid', nextid);
     s.vars.newid = String(nextid.data || '');
     s.vars.backupFile = '<datei>.tar.zst';
     return s;
@@ -73,12 +88,14 @@ export function createEngine({ api, storage, lessons }) {
   }
 
   async function startStep(s, stepId) {
-    if (!s.started[stepId]) s.started[stepId] = await serverTime(s.vars.node);
+    if (!s.started[stepId]) s.started[stepId] = await serverTime(s);
   }
 
   async function refreshBackupFile(s) {
     if (!s.lesson.needs?.includes('backupFile')) return;
-    const r = await api.get('/nodes/' + s.vars.node + '/storage/local/content?content=backup');
+    const path = '/nodes/' + s.vars.node + '/storage/local/content?content=backup';
+    const r = await api.get(path);
+    note(s, path, r);
     const mine = (r.data || []).filter((b) => String(b.volid).includes(`vzdump-lxc-${s.vars.vmid}-`)).sort((a, b) => b.ctime - a.ctime);
     s.vars.backupFile = mine[0] ? mine[0].volid.split('/').pop() : '<datei>.tar.zst';
   }
@@ -88,12 +105,14 @@ export function createEngine({ api, storage, lessons }) {
     if (!step?.check) return { state: 'none' };
     await refreshBackupFile(s);
     const vars = { ...s.vars, stepStarted: String(s.started[stepId] ?? 0) };
-    const r = await api.get(interpolate(step.check.get, vars));
-    if (r.status === 401 || r.status === 403) return { state: 'noaccess' };
-    if (!r.ok) return { state: 'error' };
+    const path = interpolate(step.check.get, vars);
+    const r = await api.get(path);
+    note(s, path, r);
+    if (r.status === 401 || r.status === 403) return { state: 'noaccess', path, status: r.status };
+    if (!r.ok) return { state: 'error', path };
     const out = evaluate(step.check.assert, r.data, vars);
     if (out.ok) await markDone(s, stepId, true);
-    return { state: out.ok ? 'ok' : 'fail', detail: out.detail };
+    return { state: out.ok ? 'ok' : 'fail', detail: out.detail, path };
   }
 
   async function markDone(s, stepId, done) {

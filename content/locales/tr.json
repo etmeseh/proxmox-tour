@@ -77,5 +77,13 @@
   "arch.warn.title": "Dikkat: yanlış mimari",
   "arch.warn.body": "{template} şablonu {templateArch} için derlenmiş, ana makineniz {hostArch} kullanıyor. Konteyner “Exec format error” ile başlamaz. {hostArch} şablonu seçin.",
   "ext.invalidated": "Eklenti güncellendi – lütfen sayfayı yenileyin.",
-  "ext.reload": "Sayfayı yenile"
+  "ext.reload": "Sayfayı yenile",
+  "perm.title": "Eksik yetkiler",
+  "perm.intro": "Kullanıcınızın bu isteklere izni yok, bu yüzden ilgili kontroller çalışmıyor:",
+  "perm.item.all": "{endpoint} için {on} üzerinde {privs} gerekir",
+  "perm.item.any": "{endpoint} için {on} üzerinde {privs} yetkilerinden biri gerekir",
+  "perm.item.unknown": "{endpoint}: erişim reddedildi",
+  "perm.item.expired": "{endpoint}: oturum açılmamış. Oturum süresi mi doldu? Sayfayı yenileyip tekrar giriş yapın.",
+  "perm.tip": "İpucu: {tipPath} üzerinde {role} rolünü atayın (Datacenter → Permissions → Add).",
+  "perm.limited": "{on} üzerinde {privs} yetkisi olmadan {endpoint} yalnızca kendi veya görünür kayıtları döndürür. Bu yüzden işlem çalışmış olsa bile kontrol başarısız olabilir."
 }

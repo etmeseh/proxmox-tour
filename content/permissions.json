@@ -1,0 +1,16 @@
+[
+  { "match": "^/nodes$", "endpoint": "/nodes", "public": true },
+  { "match": "^/cluster/resources$", "endpoint": "/cluster/resources", "public": true },
+  { "match": "^/cluster/nextid$", "endpoint": "/cluster/nextid", "public": true },
+  { "match": "^/nodes/(?<node>[^/]+)/status$", "endpoint": "/nodes/{node}/status", "privs": ["Sys.Audit"], "on": "/nodes/{node}" },
+  { "match": "^/nodes/(?<node>[^/]+)/time$", "endpoint": "/nodes/{node}/time", "privs": ["Sys.Audit"], "on": "/nodes/{node}" },
+  { "match": "^/nodes/(?<node>[^/]+)/lxc/(?<vmid>\\d+)/config$", "endpoint": "/nodes/{node}/lxc/{vmid}/config", "privs": ["VM.Audit"], "on": "/vms/{vmid}" },
+  { "match": "^/nodes/(?<node>[^/]+)/lxc/(?<vmid>\\d+)/snapshot$", "endpoint": "/nodes/{node}/lxc/{vmid}/snapshot", "privs": ["VM.Audit"], "on": "/vms/{vmid}" },
+  { "match": "^/nodes/(?<node>[^/]+)/lxc/(?<vmid>\\d+)/status/current$", "endpoint": "/nodes/{node}/lxc/{vmid}/status/current", "privs": ["VM.Audit"], "on": "/vms/{vmid}" },
+  { "match": "^/nodes/(?<node>[^/]+)/storage/(?<storage>[^/]+)/content$", "endpoint": "/nodes/{node}/storage/{storage}/content", "privs": ["Datastore.Audit", "Datastore.AllocateSpace"], "any": true, "on": "/storage/{storage}" },
+  { "match": "^/cluster/backup$", "endpoint": "/cluster/backup", "privs": ["Sys.Audit"], "on": "/" },
+  { "match": "^/nodes/(?<node>[^/]+)/tasks$", "endpoint": "/nodes/{node}/tasks", "public": true,
+    "limited": { "privs": ["Sys.Audit"], "on": "/nodes/{node}" } },
+  { "match": "^/nodes/(?<node>[^/]+)/lxc$", "endpoint": "/nodes/{node}/lxc", "public": true,
+    "limited": { "privs": ["VM.Audit"], "on": "/vms/{vmid}" } }
+]
