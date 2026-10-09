@@ -131,3 +131,55 @@ pct restore <neue-id> /var/lib/vz/dump/<datei>.tar.zst --storage local-lvm --uni
 ### Prüfbar über die API
 - Status: `GET /api2/json/nodes/{node}/lxc/{vmid}/status/current` → `status: running`
 - Letzte Tasks mit Fehlern: `GET /api2/json/nodes/{node}/tasks?errors=1&vmid={vmid}`
+
+---
+
+## Lektion 5: Benutzer, Realms & Rechte
+
+### Worum geht es?
+Nicht alles als `root@pam` erledigen. Proxmox trennt **wer** sich anmeldet (Benutzer + Realm) von **was** er darf (Rolle auf einem Pfad). So lassen sich Übungen gefahrlos auf eine einzelne Test-CT beschränken.
+
+### Realms: woher kommt das Passwort?
+| Realm | Bedeutung | Passwort |
+|---|---|---|
+| `pam` | Linux-Benutzer des Hosts | kommt aus Linux (`passwd`), Benutzer muss im System existieren |
+| `pve` | Proxmox-eigene Benutzer („Proxmox VE authentication server“) | wird in Proxmox gesetzt (`pveum passwd`) |
+
+Der Benutzername enthält immer den Realm: `lab@pve` und `lab@pam` sind **zwei verschiedene Benutzer**.
+
+### Was mir passiert ist
+- Lern-Benutzer `lab` angelegt, danach ließ sich kein Passwort setzen: Fehlermeldung „… does not exist (500)“.
+  Ursache: Benutzer und Befehl verwendeten nicht denselben Realm. Prüfen mit `pveum user list`, Benutzer im richtigen Realm (`pve`) neu anlegen.
+- Erweiterung lief als `root@pam`, aber nicht als `lab@pve`: API-Aufrufe wie `/nodes/{node}/status` und `/cluster/backup` lieferten **403**.
+  Ursache: `lab` hatte nur Rechte auf `/vms/100` und `/storage/local`, nicht `Sys.Audit`. Lösung: zusätzlich **PVEAuditor** auf `/` (nur Lesen).
+
+### Rollen und Pfade (mein Setup)
+| Pfad | Rolle | Bedeutung |
+|---|---|---|
+| `/` | `PVEAuditor` | Alles **sehen**, nichts ändern |
+| `/vms/100` | `PVEVMAdmin` | Test-CT 100 starten, stoppen, Snapshots, Rollback |
+| `/storage/local` | `PVEDatastoreUser` | Backups auf `local` anlegen |
+
+Rechte werden nach unten vererbt (`/` gilt überall), spezifischere Pfade ergänzen sie.
+
+### Befehle
+```bash
+pveum user list
+pveum user add lab@pve --comment "Lern-Benutzer"
+pveum passwd lab@pve
+pveum acl modify /        --users lab@pve --roles PVEAuditor
+pveum acl modify /vms/100 --users lab@pve --roles PVEVMAdmin
+pveum acl modify /storage/local --users lab@pve --roles PVEDatastoreUser
+pveum user permissions lab@pve
+```
+Anmeldung in der Weboberfläche: Benutzername `lab`, Realm **Proxmox VE authentication server**.
+
+### Merksätze
+- **Realm gehört zum Namen.** `@pam` ≠ `@pve`.
+- **So wenig Rechte wie möglich, so viel wie nötig.** Lesen überall, Schreiben nur auf der Test-CT.
+- **403 heißt: angemeldet, aber nicht berechtigt.** 401 heißt: nicht (mehr) angemeldet.
+- Alles, was die Host-Shell braucht (`pveam`, `pct start --debug`), bleibt bei `root@pam`.
+
+### Prüfbar über die API
+- Eigene Rechte: `GET /api2/json/access/permissions` → für Pfad `/` ist `Sys.Audit: 1`, für `/vms/{vmid}` ist `VM.Snapshot: 1`
+- Lesezugriff vorhanden: `GET /api2/json/nodes/{node}/status` → 200 statt 403
