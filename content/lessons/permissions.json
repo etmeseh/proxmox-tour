@@ -1,0 +1,98 @@
+{
+  "id": "permissions",
+  "vars": [
+    "vmid"
+  ],
+  "roles": {
+    "setup": "root@pam",
+    "check": "lab@pve"
+  },
+  "steps": [
+    {
+      "id": "realms",
+      "type": "read"
+    },
+    {
+      "id": "user",
+      "type": "command",
+      "cmds": [
+        {
+          "cmd": "pveum user list",
+          "where": "host"
+        },
+        {
+          "cmd": "pveum user add lab@pve --comment \"Lern-Benutzer\"",
+          "where": "host"
+        },
+        {
+          "cmd": "pveum passwd lab@pve",
+          "where": "host"
+        }
+      ]
+    },
+    {
+      "id": "roles",
+      "type": "command",
+      "cmds": [
+        {
+          "cmd": "pveum acl modify / --users lab@pve --roles PVEAuditor",
+          "where": "host"
+        },
+        {
+          "cmd": "pveum acl modify /vms/{vmid} --users lab@pve --roles PVEVMAdmin",
+          "where": "host"
+        },
+        {
+          "cmd": "pveum acl modify /storage/local --users lab@pve --roles PVEDatastoreUser",
+          "where": "host"
+        },
+        {
+          "cmd": "pveum user permissions lab@pve",
+          "where": "host"
+        }
+      ]
+    },
+    {
+      "id": "audit",
+      "type": "command",
+      "check": {
+        "get": "/access/permissions?path=/",
+        "assert": {
+          "path": [
+            "/",
+            "Sys.Audit"
+          ],
+          "equals": "1"
+        }
+      }
+    },
+    {
+      "id": "snapshot",
+      "type": "command",
+      "check": {
+        "get": "/access/permissions?path=/vms/{vmid}",
+        "assert": {
+          "path": [
+            "/vms/{vmid}",
+            "VM.Snapshot"
+          ],
+          "equals": "1"
+        }
+      }
+    },
+    {
+      "id": "read",
+      "type": "command",
+      "check": {
+        "get": "/nodes/{node}/status",
+        "assert": {
+          "path": "current-kernel.machine"
+        }
+      }
+    },
+    {
+      "id": "rule",
+      "type": "read"
+    }
+  ]
+}

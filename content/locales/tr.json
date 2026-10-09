@@ -72,6 +72,7 @@
   "lessons.var.snap": "Anlık görüntü adı",
   "lessons.var.newid": "Yeni CT kimliği",
   "lessons.labHint": "Alıştırmalar için ayrı bir alıştırma konteyneri kullanın.",
+  "lessons.roles": "{setup} ile oluştur, {check} ile denetle",
   "lessons.noCt": "Konteyner bulunamadı.",
   "lessons.reset": "Dersi sıfırla",
   "arch.warn.title": "Dikkat: yanlış mimari",

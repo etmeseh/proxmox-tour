@@ -34,3 +34,13 @@ test('path und count', () => {
 test('Nicht-Listen liefern bei Listen-Prüfungen false statt zu werfen', () => {
   assert.ok(!evaluate({ any: { a: 1 } }, null, vars).ok);
 });
+
+test('path als Array: Schlüssel mit Punkten (Rechte-Namen) und Interpolation', () => {
+  const perms = { '/vms/100': { 'VM.Snapshot': 1, 'VM.Audit': 1 } };
+  const v = { vmid: '100' };
+  assert.ok(evaluate({ path: ['/vms/{vmid}', 'VM.Snapshot'], equals: '1' }, perms, v).ok);
+  assert.ok(!evaluate({ path: ['/vms/{vmid}', 'Sys.Audit'], equals: '1' }, perms, v).ok);
+  assert.ok(!evaluate({ path: ['/vms/{vmid}', 'VM.Snapshot'], equals: '1' }, {}, v).ok);
+  assert.ok(!evaluate({ path: ['/', 'Sys.Audit'], equals: '1' }, { '/': { 'Sys.Audit': 0 } }, v).ok);
+  assert.ok(evaluate({ path: 'a.b' }, { a: { b: 0 } }).ok);
+});

@@ -58,5 +58,21 @@
   "lesson.debug.errors.title": "No new errors",
   "lesson.debug.errors.body": "Checks that no new failed task for CT {vmid} appeared since this step began.",
   "lesson.debug.rule.title": "Rule of thumb",
-  "lesson.debug.rule.body": "**Do not guess, read the debug output.** The first guess (Proxmox version does not fit Debian 13) was wrong. The debug output showed the real cause in a single line."
+  "lesson.debug.rule.body": "**Do not guess, read the debug output.** The first guess (Proxmox version does not fit Debian 13) was wrong. The debug output showed the real cause in a single line.",
+  "lesson.permissions.title": "Users, realms & permissions",
+  "lesson.permissions.desc": "Who signs in and what they may do: realm, role, path.",
+  "lesson.permissions.realms.title": "Realms: where does the password come from?",
+  "lesson.permissions.realms.body": "Proxmox separates **who** signs in (user + realm) from **what** they may do (role on a path). This lets you restrict exercises to a single test CT.\n\n`pam`: Linux users of the host. The password comes from Linux (`passwd`), the user must exist on the system.\n`pve`: Proxmox-own users (\"Proxmox VE authentication server\"). The password is set in Proxmox (`pveum passwd`).\n\nThe user name always includes the realm: `lab@pve` and `lab@pam` are **two different users**.",
+  "lesson.permissions.user.title": "1. Create the user",
+  "lesson.permissions.user.body": "Run on the host as `root@pam`. First look at what exists with `pveum user list`. If you create the user in a different realm than the one used for the password, you get \"does not exist (500)\". Sign-in in the web UI: user name `lab`, realm **Proxmox VE authentication server**.",
+  "lesson.permissions.roles.title": "2. Assign roles",
+  "lesson.permissions.roles.body": "Each line assigns a role on a path. `/` applies everywhere (PVEAuditor: read only), `/vms/{vmid}` only to the test CT {vmid}, `/storage/local` for backups on `local`. Permissions are inherited downwards, more specific paths add to them. The last command shows the effective permissions.",
+  "lesson.permissions.audit.title": "3. Check read access everywhere",
+  "lesson.permissions.audit.body": "Checks via the API whether the signed-in user has `Sys.Audit` on `/`. Sign in as `lab@pve` to check; as `root@pam` the check always passes.",
+  "lesson.permissions.snapshot.title": "4. Check snapshots on the test CT",
+  "lesson.permissions.snapshot.body": "Checks whether the signed-in user has `VM.Snapshot` on `/vms/{vmid}`.",
+  "lesson.permissions.read.title": "5. Check read access",
+  "lesson.permissions.read.body": "Calls `/nodes/{node}/status`. With the right you get a response, without it error 403 and the panel shows which right is missing.",
+  "lesson.permissions.rule.title": "Rule of thumb",
+  "lesson.permissions.rule.body": "**The realm is part of the name.** `@pam` ≠ `@pve`.\n**As few rights as possible, as many as necessary:** read everywhere, write only on the test CT.\n**403 means: signed in, but not permitted.** 401 means: not (or no longer) signed in.\nWhat the host shell needs (`pveam`, `pct start --debug`) stays with `root@pam`."
 }

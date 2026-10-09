@@ -58,5 +58,21 @@
   "lesson.debug.errors.title": "Keine neuen Fehler",
   "lesson.debug.errors.body": "Prüft, ob seit Beginn dieses Schritts kein neuer fehlgeschlagener Task für CT {vmid} entstanden ist.",
   "lesson.debug.rule.title": "Merksatz",
-  "lesson.debug.rule.body": "**Nicht raten, sondern die Debug-Ausgabe lesen.** Die erste Vermutung (Proxmox-Version passt nicht zu Debian 13) war falsch. Die Debug-Ausgabe hat die echte Ursache in einer Zeile gezeigt."
+  "lesson.debug.rule.body": "**Nicht raten, sondern die Debug-Ausgabe lesen.** Die erste Vermutung (Proxmox-Version passt nicht zu Debian 13) war falsch. Die Debug-Ausgabe hat die echte Ursache in einer Zeile gezeigt.",
+  "lesson.permissions.title": "Benutzer, Realms & Rechte",
+  "lesson.permissions.desc": "Wer sich anmeldet und was er darf: Realm, Rolle, Pfad.",
+  "lesson.permissions.realms.title": "Realms: woher kommt das Passwort?",
+  "lesson.permissions.realms.body": "Proxmox trennt **wer** sich anmeldet (Benutzer + Realm) von **was** er darf (Rolle auf einem Pfad). So lassen sich Übungen auf eine einzelne Test-CT beschränken.\n\n`pam`: Linux-Benutzer des Hosts. Das Passwort kommt aus Linux (`passwd`), der Benutzer muss im System existieren.\n`pve`: Proxmox-eigene Benutzer („Proxmox VE authentication server“). Das Passwort wird in Proxmox gesetzt (`pveum passwd`).\n\nDer Benutzername enthält immer den Realm: `lab@pve` und `lab@pam` sind **zwei verschiedene Benutzer**.",
+  "lesson.permissions.user.title": "1. Benutzer anlegen",
+  "lesson.permissions.user.body": "Auf dem Host als `root@pam`. Zuerst mit `pveum user list` ansehen, was es gibt. Legst du den Benutzer in einem anderen Realm an als beim Passwort, kommt „does not exist (500)“. Anmeldung in der Oberfläche: Benutzername `lab`, Realm **Proxmox VE authentication server**.",
+  "lesson.permissions.roles.title": "2. Rollen vergeben",
+  "lesson.permissions.roles.body": "Jede Zeile vergibt eine Rolle auf einem Pfad. `/` gilt überall (PVEAuditor: nur sehen), `/vms/{vmid}` nur für die Test-CT {vmid}, `/storage/local` für Backups auf `local`. Rechte werden nach unten vererbt, spezifischere Pfade ergänzen sie. Der letzte Befehl zeigt die wirksamen Rechte.",
+  "lesson.permissions.audit.title": "3. Lesen überall prüfen",
+  "lesson.permissions.audit.body": "Prüft über die API, ob der angemeldete Benutzer auf `/` das Recht `Sys.Audit` hat. Melde dich zum Prüfen als `lab@pve` an; als `root@pam` ist der Check immer erfüllt.",
+  "lesson.permissions.snapshot.title": "4. Snapshots auf der Test-CT prüfen",
+  "lesson.permissions.snapshot.body": "Prüft, ob der angemeldete Benutzer auf `/vms/{vmid}` das Recht `VM.Snapshot` hat.",
+  "lesson.permissions.read.title": "5. Lesezugriff prüfen",
+  "lesson.permissions.read.body": "Ruft `/nodes/{node}/status` ab. Mit Recht kommt eine Antwort, ohne Recht der Fehler 403 und das Panel zeigt, welches Recht fehlt.",
+  "lesson.permissions.rule.title": "Merksatz",
+  "lesson.permissions.rule.body": "**Der Realm gehört zum Namen.** `@pam` ≠ `@pve`.\n**So wenig Rechte wie möglich, so viel wie nötig:** Lesen überall, Schreiben nur auf der Test-CT.\n**403 heißt: angemeldet, aber nicht berechtigt.** 401 heißt: nicht (mehr) angemeldet.\nWas die Host-Shell braucht (`pveam`, `pct start --debug`), bleibt bei `root@pam`."
 }

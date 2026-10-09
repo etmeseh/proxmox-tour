@@ -58,5 +58,21 @@
   "lesson.debug.errors.title": "Yeni hata yok",
   "lesson.debug.errors.body": "Bu adımın başlangıcından beri CT {vmid} için yeni bir başarısız görev oluşmadığını kontrol eder.",
   "lesson.debug.rule.title": "Akılda tutulacak kural",
-  "lesson.debug.rule.body": "**Tahmin etmeyin, hata ayıklama çıktısını okuyun.** İlk tahmin (Proxmox sürümü Debian 13'e uymuyor) yanlıştı. Hata ayıklama çıktısı gerçek nedeni tek satırda gösterdi."
+  "lesson.debug.rule.body": "**Tahmin etmeyin, hata ayıklama çıktısını okuyun.** İlk tahmin (Proxmox sürümü Debian 13'e uymuyor) yanlıştı. Hata ayıklama çıktısı gerçek nedeni tek satırda gösterdi.",
+  "lesson.permissions.title": "Kullanıcılar, realm'ler ve yetkiler",
+  "lesson.permissions.desc": "Kim giriş yapar, ne yapabilir: realm, rol, yol.",
+  "lesson.permissions.realms.title": "Realm'ler: parola nereden gelir?",
+  "lesson.permissions.realms.body": "Proxmox, **kimin** giriş yaptığını (kullanıcı + realm) **neyi** yapabileceğinden (bir yol üzerindeki rol) ayırır. Böylece alıştırmalar tek bir test CT'siyle sınırlanabilir.\n\n`pam`: Ana makinenin Linux kullanıcıları. Parola Linux'tan gelir (`passwd`), kullanıcı sistemde var olmalıdır.\n`pve`: Proxmox'un kendi kullanıcıları (\"Proxmox VE authentication server\"). Parola Proxmox'ta belirlenir (`pveum passwd`).\n\nKullanıcı adı her zaman realm'i içerir: `lab@pve` ve `lab@pam` **iki farklı kullanıcıdır**.",
+  "lesson.permissions.user.title": "1. Kullanıcıyı oluşturma",
+  "lesson.permissions.user.body": "Ana makinede `root@pam` olarak çalıştırın. Önce `pveum user list` ile mevcut olanlara bakın. Kullanıcıyı parola için kullandığınızdan farklı bir realm'de oluşturursanız \"does not exist (500)\" hatası alırsınız. Arayüzde giriş: kullanıcı adı `lab`, realm **Proxmox VE authentication server**.",
+  "lesson.permissions.roles.title": "2. Rolleri atama",
+  "lesson.permissions.roles.body": "Her satır bir yola bir rol atar. `/` her yerde geçerlidir (PVEAuditor: yalnızca görme), `/vms/{vmid}` yalnızca {vmid} numaralı test CT'si için, `/storage/local` ise `local` üzerindeki yedekler için. Yetkiler aşağıya miras kalır, daha özel yollar bunlara ekleme yapar. Son komut geçerli yetkileri gösterir.",
+  "lesson.permissions.audit.title": "3. Her yerde okuma yetkisini denetleme",
+  "lesson.permissions.audit.body": "Giriş yapmış kullanıcının `/` üzerinde `Sys.Audit` yetkisi olup olmadığını API ile denetler. Denetlemek için `lab@pve` olarak giriş yapın; `root@pam` ile denetim her zaman geçer.",
+  "lesson.permissions.snapshot.title": "4. Test CT'sinde anlık görüntüleri denetleme",
+  "lesson.permissions.snapshot.body": "Giriş yapmış kullanıcının `/vms/{vmid}` üzerinde `VM.Snapshot` yetkisi olup olmadığını denetler.",
+  "lesson.permissions.read.title": "5. Okuma erişimini denetleme",
+  "lesson.permissions.read.body": "`/nodes/{node}/status` adresini çağırır. Yetki varsa yanıt gelir, yoksa 403 hatası alınır ve panel hangi yetkinin eksik olduğunu gösterir.",
+  "lesson.permissions.rule.title": "Akılda tutulacak kural",
+  "lesson.permissions.rule.body": "**Realm adın bir parçasıdır.** `@pam` ≠ `@pve`.\n**Mümkün olduğunca az, gerektiği kadar yetki:** her yerde okuma, yazma yalnızca test CT'sinde.\n**403: giriş yapılmış ama yetki yok demektir.** 401: giriş yapılmamış (veya artık yapılmamış) demektir.\nAna makine kabuğunun gerektirdiği işler (`pveam`, `pct start --debug`) `root@pam` ile kalır."
 }

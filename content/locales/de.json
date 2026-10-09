@@ -72,6 +72,7 @@
   "lessons.var.snap": "Snapshot-Name",
   "lessons.var.newid": "Neue CT-ID",
   "lessons.labHint": "Nutze für die Übungen einen eigenen Übungs-Container.",
+  "lessons.roles": "Anlegen als {setup}, Prüfen als {check}",
   "lessons.noCt": "Keine Container gefunden.",
   "lessons.reset": "Lektion zurücksetzen",
   "arch.warn.title": "Achtung: falsche Architektur",

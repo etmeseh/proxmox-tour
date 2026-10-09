@@ -5,8 +5,10 @@ export function interpolate(str, vars) {
   return String(str).replace(/\{(\w+)\}/g, (m, k) => (vars[k] ?? m));
 }
 
-function getPath(obj, path) {
-  return path.split('.').reduce((o, k) => (o == null ? undefined : o[k]), obj);
+function getPath(obj, path, vars) {
+  // Array = feste Segmente (Schlüssel dürfen Punkte enthalten, z. B. "Sys.Audit"), String = Punkt-getrennt.
+  const keys = Array.isArray(path) ? path.map((k) => interpolate(k, vars)) : path.split('.');
+  return keys.reduce((o, k) => (o == null ? undefined : o[k]), obj);
 }
 
 function testOp(val, op, want) {
@@ -34,7 +36,7 @@ function match(item, matcher, vars) {
 // Liefert { ok: boolean, detail?: string }
 export function evaluate(spec, data, vars = {}) {
   if (spec.path !== undefined) {
-    const val = getPath(data, spec.path);
+    const val = getPath(data, spec.path, vars);
     const op = ['equals', 'ne', 'contains', 'matches', 'gte', 'lte'].find((o) => spec[o] !== undefined);
     return { ok: op ? testOp(val, op, interpolate(spec[op], vars)) : val !== undefined, detail: String(val ?? '') };
   }

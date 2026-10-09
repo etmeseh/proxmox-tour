@@ -72,6 +72,7 @@
   "lessons.var.snap": "Snapshot name",
   "lessons.var.newid": "New CT ID",
   "lessons.labHint": "Use a dedicated practice container for the exercises.",
+  "lessons.roles": "Create as {setup}, check as {check}",
   "lessons.noCt": "No containers found.",
   "lessons.reset": "Reset lesson",
   "arch.warn.title": "Warning: wrong architecture",

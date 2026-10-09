@@ -123,7 +123,8 @@ export function createLessonPanel({ engine, getLang, getContextVmid, isAlive = (
       rows.push(h('label', {}, t(L, `lessons.var.${name}`)), input);
     }
     return h('div', {}, h('div', { class: 'vars' }, rows),
-      session.lesson.vars?.includes('vmid') ? h('div', { class: 'hint' }, t(L, 'lessons.labHint')) : null);
+      session.lesson.vars?.includes('vmid') ? h('div', { class: 'hint' }, t(L, 'lessons.labHint')) : null,
+      session.lesson.roles ? h('div', { class: 'hint' }, t(L, 'lessons.roles', session.lesson.roles)) : null);
   }
 
   function cmdView(c) {

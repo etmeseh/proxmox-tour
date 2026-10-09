@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { createEngine } from '../src/core/lessons.js';
 
 function fakeApi(map) {
@@ -112,4 +113,26 @@ test('verweigerte Zeit-Abfrage wird gemeldet, Schritt startet trotzdem', async (
   await e.startStep(s, 'c');
   assert.ok(s.started.c > 0);
   assert.deepEqual(s.denied.map((d) => d.path), ['/nodes/pve/time']);
+});
+
+test('Lektion Rechte: Check über /access/permissions, auch 403 und fehlendes Recht', async () => {
+  const lessons = [JSON.parse(readFileSync(new URL('../content/lessons/permissions.json', import.meta.url), 'utf8'))];
+  const mk = (perms) => ({ ...base, '/access/permissions?path=/': perms['/'] ?? {}, '/access/permissions?path=/vms/105': perms['/vms/105'] ?? {} });
+  const run = async (map, step) => {
+    const e = createEngine({ api: fakeApi(map), storage: mem(), lessons });
+    return e.check(await e.open('permissions'), step);
+  };
+  const full = mk({ '/': { '/': { 'Sys.Audit': 1 } }, '/vms/105': { '/vms/105': { 'VM.Snapshot': 1 } } });
+  assert.equal((await run(full, 'audit')).state, 'ok');
+  assert.equal((await run(full, 'snapshot')).state, 'ok');
+  // lab ohne Auditor-Rolle auf "/": leere Antwort bzw. Recht fehlt
+  const noAudit = mk({ '/': { '/': { 'VM.Audit': 1 } } });
+  assert.equal((await run(noAudit, 'audit')).state, 'fail');
+  assert.equal((await run(noAudit, 'snapshot')).state, 'fail');
+  // Lesezugriff: 200 mit Daten ok, 403 noaccess
+  assert.equal((await run(full, 'read')).state, 'ok');
+  const api403 = { get: async (p) => (p.endsWith('/status') ? { ok: false, status: 403, data: null } : fakeApi(full).get(p)) };
+  const e = createEngine({ api: api403, storage: mem(), lessons });
+  const s = await e.open('permissions');
+  assert.equal((await e.check(s, 'read')).state, 'noaccess');
 });
