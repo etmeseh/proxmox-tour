@@ -1,0 +1,10 @@
+{
+  "id": "snapshots",
+  "trigger": { "nodeType": ["lxc", "qemu"], "view": { "en": "Snapshots" } },
+  "steps": [
+    { "key": "snap.intro", "target": { "css": "[id^=\"pveGuestSnapshotTree\"]" }, "side": "left" },
+    { "key": "snap.take", "target": { "css": ".x-btn", "text": { "en": "Take Snapshot" } }, "side": "bottom" },
+    { "key": "snap.rollback", "target": { "css": ".x-btn", "text": { "en": "Rollback" } }, "side": "bottom" },
+    { "key": "snap.remove", "target": { "css": ".x-btn", "text": { "en": "Remove" } }, "side": "bottom" }
+  ]
+}

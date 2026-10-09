@@ -1,0 +1,13 @@
+{
+  "id": "lxc-create",
+  "trigger": { "dialog": { "en": "Create: LXC Container" } },
+  "steps": [
+    { "key": "lxc.welcome", "target": { "css": ".x-window" }, "side": "left" },
+    { "key": "lxc.tabs", "target": { "css": ".x-window .x-tab-bar" }, "side": "bottom" },
+    { "key": "lxc.id", "target": { "css": ".x-window input[name=\"vmid\"]", "closest": ".x-field" }, "side": "right" },
+    { "key": "lxc.hostname", "target": { "css": ".x-window input[name=\"hostname\"]", "closest": ".x-field" }, "side": "right" },
+    { "key": "lxc.unprivileged", "target": { "css": ".x-window input[name=\"unprivileged\"]", "closest": ".x-field" }, "side": "right" },
+    { "key": "lxc.password", "target": { "css": ".x-window input[name=\"password\"]", "closest": ".x-field" }, "side": "right" },
+    { "key": "lxc.next", "target": { "css": ".x-window .x-btn", "text": { "en": "Next" } }, "side": "top" }
+  ]
+}

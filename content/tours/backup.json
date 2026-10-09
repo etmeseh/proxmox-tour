@@ -1,0 +1,10 @@
+{
+  "id": "backup",
+  "trigger": { "nodeType": ["lxc", "qemu"], "view": { "en": "Backup" } },
+  "steps": [
+    { "key": "bak.intro", "target": { "css": "[id^=\"pveBackupView\"]" }, "side": "left" },
+    { "key": "bak.now", "target": { "css": ".x-btn", "text": { "en": "Backup now" } }, "side": "bottom" },
+    { "key": "bak.restore", "target": { "css": ".x-btn", "text": { "en": "Restore" } }, "side": "bottom" },
+    { "key": "bak.protect", "target": { "css": ".x-btn", "text": { "en": "Change Protection" } }, "side": "bottom" }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "overview",
+  "trigger": { "nodeType": ["datacenter", "node"] },
+  "steps": [
+    { "key": "overview.welcome" },
+    {
+      "key": "overview.tree",
+      "target": { "css": ["[id^=\"pveResourceTree\"]", ".x-tree-panel"] },
+      "side": "right"
+    },
+    {
+      "key": "overview.search",
+      "target": [{ "css": "input[placeholder=\"Search\"]" }, { "css": "input.x-form-empty-field" }],
+      "side": "bottom"
+    },
+    {
+      "key": "overview.create",
+      "target": { "css": ".x-btn", "text": { "en": "Create VM", "de": "VM erstellen" } },
+      "side": "bottom"
+    },
+    {
+      "key": "overview.nav",
+      "target": { "css": ".x-treelist-pve-nav" },
+      "side": "right"
+    },
+    {
+      "key": "overview.tasks",
+      "target": { "css": "[id^=\"pveStatusPanel\"]" },
+      "side": "top"
+    }
+  ]
+}
