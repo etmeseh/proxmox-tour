@@ -1,0 +1,25 @@
+{
+  "id": "snapshot",
+  "vars": ["vmid", "snap"],
+  "steps": [
+    { "id": "intro", "type": "read" },
+    { "id": "state", "type": "command", "cmds": [
+      { "cmd": "echo \"hallo\" > /root/test.txt", "where": "ct" }
+    ] },
+    { "id": "take", "type": "command",
+      "highlight": { "css": ".x-btn", "text": { "en": "Take Snapshot" } },
+      "cmds": [ { "cmd": "pct snapshot {vmid} {snap}", "where": "host" }, { "cmd": "pct listsnapshot {vmid}", "where": "host" } ],
+      "check": { "get": "/nodes/{node}/lxc/{vmid}/snapshot", "assert": { "any": { "name": { "ne": "current" } } } } },
+    { "id": "break", "type": "command", "cmds": [
+      { "cmd": "rm /root/test.txt", "where": "ct" }
+    ] },
+    { "id": "rollback", "type": "command",
+      "highlight": { "css": ".x-btn", "text": { "en": "Rollback" } },
+      "cmds": [ { "cmd": "pct rollback {vmid} {snap}", "where": "host", "destructive": true } ],
+      "check": { "get": "/nodes/{node}/tasks?vmid={vmid}&limit=20", "assert": { "any": { "type": "vzrollback", "status": "OK", "starttime": { "gte": "{stepStarted}" } } } } },
+    { "id": "verify", "type": "command", "cmds": [
+      { "cmd": "cat /root/test.txt", "where": "ct" }
+    ] },
+    { "id": "rule", "type": "read" }
+  ]
+}

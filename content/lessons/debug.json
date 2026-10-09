@@ -1,0 +1,17 @@
+{
+  "id": "debug",
+  "vars": ["vmid"],
+  "steps": [
+    { "id": "story", "type": "read" },
+    { "id": "debug", "type": "command",
+      "highlight": { "css": ".x-btn", "text": { "en": "Shell" } },
+      "cmds": [ { "cmd": "pct start {vmid} --debug 2>&1 | tail -40", "where": "host" } ] },
+    { "id": "cause", "type": "read" },
+    { "id": "config", "type": "command", "cmds": [ { "cmd": "pct config {vmid}", "where": "host" } ] },
+    { "id": "running", "type": "check",
+      "check": { "get": "/nodes/{node}/lxc/{vmid}/status/current", "assert": { "path": "status", "equals": "running" } } },
+    { "id": "errors", "type": "check",
+      "check": { "get": "/nodes/{node}/tasks?errors=1&vmid={vmid}", "assert": { "none": { "starttime": { "gte": "{stepStarted}" } } } } },
+    { "id": "rule", "type": "read" }
+  ]
+}

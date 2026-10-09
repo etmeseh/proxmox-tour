@@ -1,0 +1,19 @@
+{
+  "id": "backup",
+  "vars": ["vmid", "newid"],
+  "needs": ["backupFile"],
+  "steps": [
+    { "id": "intro", "type": "read" },
+    { "id": "now", "type": "command",
+      "highlight": { "css": ".x-btn", "text": { "en": "Backup now" } },
+      "cmds": [ { "cmd": "vzdump {vmid} --mode snapshot --storage local --compress zstd", "where": "host" } ],
+      "check": { "get": "/nodes/{node}/storage/local/content?content=backup", "assert": { "any": { "volid": { "contains": "vzdump-lxc-{vmid}-" }, "ctime": { "gte": "{stepStarted}" } } } } },
+    { "id": "job", "type": "check",
+      "check": { "get": "/cluster/backup", "assert": { "count": { "gte": 1 } } } },
+    { "id": "restore", "type": "command",
+      "cmds": [ { "cmd": "pct restore {newid} /var/lib/vz/dump/{backupFile} --storage local-lvm --unique", "where": "host" } ],
+      "check": { "get": "/nodes/{node}/lxc", "assert": { "any": { "vmid": "{newid}" } } } },
+    { "id": "test", "type": "read" },
+    { "id": "rule", "type": "read" }
+  ]
+}

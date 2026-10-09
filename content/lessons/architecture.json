@@ -1,0 +1,23 @@
+{
+  "id": "architecture",
+  "vars": ["vmid"],
+  "steps": [
+    { "id": "why", "type": "read" },
+    { "id": "host", "type": "command", "cmds": [
+      { "cmd": "uname -m", "where": "host" },
+      { "cmd": "dpkg --print-architecture", "where": "host" },
+      { "cmd": "file /bin/ls", "where": "host" }
+    ] },
+    { "id": "ctarch", "type": "check",
+      "check": { "get": "/nodes/{node}/lxc/{vmid}/config", "assert": { "path": "arch", "equals": "{hostArch}" } } },
+    { "id": "templates", "type": "check",
+      "check": { "get": "/nodes/{node}/storage/local/content?content=vztmpl", "assert": { "none": { "volid": { "matches": "{foreignArch}" } } } } },
+    { "id": "download", "type": "command", "cmds": [
+      { "cmd": "pveam update", "where": "host" },
+      { "cmd": "pveam available --section system | grep debian-13", "where": "host" },
+      { "cmd": "pveam download local debian-13-standard_<version>_amd64.tar.zst", "where": "host" },
+      { "cmd": "pveam remove local:vztmpl/<falsches-template>", "where": "host", "destructive": true }
+    ] },
+    { "id": "rule", "type": "read" }
+  ]
+}
