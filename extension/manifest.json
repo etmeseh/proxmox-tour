@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Proxmox VE Produkttour",
+  "version": "0.1.0",
+  "description": "Geführte Tour (Driver.js) durch die Proxmox-VE-Weboberfläche. Keine Daten verlassen den Browser.",
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["https://*:8006/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

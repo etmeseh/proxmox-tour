@@ -1,0 +1,23 @@
+# Abhängigkeiten und Build-Ausgabe
+node_modules/
+dist/
+
+# Zugangsdaten / lokale Einstellungen
+.env*
+.claude/settings.local.json
+*.pem
+*.key
+
+# Editor / System
+.DS_Store
+.vscode/
+.idea/
+*.log
+
+# Screenshots-Rohmaterial (nur unter docs/ erlaubt)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+!docs/**

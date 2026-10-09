@@ -1,0 +1,17 @@
+{
+  "name": "proxmox-tour",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "build:userscript": "node build.mjs userscript",
+    "build:extension": "node build.mjs extension"
+  },
+  "dependencies": {
+    "driver.js": "^1.9.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

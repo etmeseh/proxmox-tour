@@ -1,0 +1,10 @@
+// ==UserScript==
+// @name         Proxmox VE Produkttour
+// @namespace    proxmox-tour
+// @version      0.1.0
+// @description  Geführte Tour (Driver.js) durch die Proxmox-VE-Weboberfläche
+// @match        https://*:8006/*
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @run-at       document-idle
+// ==/UserScript==
