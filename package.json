@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node build.mjs",
     "build:userscript": "node build.mjs userscript",
-    "build:extension": "node build.mjs extension"
+    "build:extension": "node build.mjs extension",
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
     "driver.js": "^1.9.0"

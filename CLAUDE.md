@@ -1,6 +1,6 @@
 # proxmox-tour
 
-Driver.js-Tour und Lektionen für die Proxmox-VE-Weboberfläche. Build: `npm run build`, Tests: `node --test test/`.
+Driver.js-Tour und Lektionen für die Proxmox-VE-Weboberfläche. Build: `npm run build`, Tests: `npm test`.
 
 ## Git-Workflow
 
